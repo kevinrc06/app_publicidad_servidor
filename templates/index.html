@@ -9,26 +9,52 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
-            background-color: #2fa7a7;
+            background-color: #2fa7a7; /* Color base */
+            background-image: url('../static/logo.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover; /* El logo se verá completo */
             color: white;
             padding-bottom: 50px;
         }
+    
         .card {
-            background-color: #0ba1a1;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro translúcido */
             border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
         }
+    
         .btn-primary {
             background-color: #0F6F6F;
             border: none;
         }
+    
         .btn-primary:hover {
             background-color: #0D5E5E;
         }
-    </style>
-</head>
-<body class="container mt-5">
     
+        h2, label, .form-label, .input-group-text {
+            color: #ffffff;
+        }
+    
+        input[type="time"], .form-control {
+            background-color: rgba(255, 255, 255, 0.85);
+            color: #000;
+        }
+    
+        ul.list-group {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        h3 {
+            color: #0e0d0d;  
+        }
+    </style>
+    
+    
+</head>
+<body class="container mt-5" >
     <div class="card p-4">
         <h2 class="mb-4 text-center">Subir Imágenes y Asignar Horarios</h2>
         
