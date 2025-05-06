@@ -73,11 +73,11 @@ $(document).ready(function () {
             return;
         }
 
-        // Validación de rango lógico
+        /*/ Validación de rango lógico
         if (horarioInicio >= horarioFin) {
             Swal.fire("Horario inválido", "La hora de inicio debe ser menor que la hora de fin.", "warning");
             return;
-        }
+        }*/
 
         // Validación de solapamiento
         let hayConflicto = horariosRegistrados.some(h => {
