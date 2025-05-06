@@ -1,9 +1,20 @@
-$(document).ready(function() {
+$(document).ready(function () {
+    let horariosRegistrados = []; // ← Aquí guardaremos los rangos horarios
+
     function actualizarListaImagenes() {
-        $.get("/imagenes", function(data) {
+        $.get("/imagenes", function (data) {
+            horariosRegistrados = []; // Limpiamos antes de volver a llenar
+
             let lista = $("#imagenesLista");
             lista.empty();
+
             data.forEach(img => {
+                // Guardamos los horarios para validación futura
+                horariosRegistrados.push({
+                    inicio: img.horario_inicio,
+                    fin: img.horario_fin
+                });
+
                 let item = `<li class="list-group-item d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
                         <img src="/imagenes/${img.nombre}" class="img-thumbnail me-3" width="100">
@@ -19,7 +30,7 @@ $(document).ready(function() {
         });
     }
 
-    window.eliminarImagen = function(nombre) {
+    window.eliminarImagen = function (nombre) {
         Swal.fire({
             title: "¿Estás seguro?",
             text: "No podrás revertir esta acción.",
@@ -36,11 +47,11 @@ $(document).ready(function() {
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify({ nombre: nombre }),
-                    success: function(response) {
+                    success: function (response) {
                         Swal.fire("¡Eliminado!", response.message, "success");
                         actualizarListaImagenes();
                     },
-                    error: function() {
+                    error: function () {
                         Swal.fire("Error", "Hubo un problema al eliminar la imagen.", "error");
                     }
                 });
@@ -50,19 +61,40 @@ $(document).ready(function() {
 
     actualizarListaImagenes();
 
-    $("#uploadForm").on("submit", function(event) {
+    $("#uploadForm").on("submit", function (event) {
         event.preventDefault();
 
-        let formData = new FormData();
         let file = $("#imageInput")[0].files[0];
         let horarioInicio = $("#horaInicio").val();
         let horarioFin = $("#horaFin").val();
 
         if (!file || !horarioInicio || !horarioFin) {
-            Swal.fire("¡Error!","Todos los campos son obligatorios.","error");
+            Swal.fire("¡Error!", "Todos los campos son obligatorios.", "error");
             return;
         }
 
+        // Validación de rango lógico
+        if (horarioInicio >= horarioFin) {
+            Swal.fire("Horario inválido", "La hora de inicio debe ser menor que la hora de fin.", "warning");
+            return;
+        }
+
+        // Validación de solapamiento
+        let hayConflicto = horariosRegistrados.some(h => {
+            return (
+                (horarioInicio >= h.inicio && horarioInicio < h.fin) || // inicia dentro de otro
+                (horarioFin > h.inicio && horarioFin <= h.fin) ||       // termina dentro de otro
+                (horarioInicio <= h.inicio && horarioFin >= h.fin)      // lo cubre completamente
+            );
+        });
+
+        if (hayConflicto) {
+            Swal.fire("Conflicto de horario", "El horario se cruza con uno ya registrado.", "warning");
+            return;
+        }
+
+        // Todo ok, enviar
+        let formData = new FormData();
         formData.append("image", file);
         formData.append("horario_inicio", horarioInicio);
         formData.append("horario_fin", horarioFin);
@@ -73,13 +105,13 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
+            success: function (response) {
                 Swal.fire("¡Éxito!", response.message, "success");
                 $("#uploadForm")[0].reset();
                 $("#imagePreview").attr("src", "").addClass("d-none");
-                actualizarListaImagenes();
+                actualizarListaImagenes(); // esto actualizará también los horarios en memoria
             },
-            error: function() {
+            error: function () {
                 Swal.fire("Error", "Hubo un problema al subir la imagen.", "error");
             }
         });
